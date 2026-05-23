@@ -283,7 +283,13 @@ export default function App() {
       );
     }
     if (tab === "categories") {
-      return <CategoryScreen domainProgress={domainProgress} />;
+      return (
+        <CategoryScreen
+          domainProgress={domainProgress}
+          terms={TERMS}
+          onOpenTermDetail={openTermDetail}
+        />
+      );
     }
     if (tab === "quiz") {
       return (

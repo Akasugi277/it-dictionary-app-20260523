@@ -17,6 +17,9 @@ type HomeScreenProps = {
   onOpenTermDetail: (term: Term) => void;
 };
 
+const LEVEL_PREVIEW_COUNT = 3;
+const TERM_PREVIEW_COUNT = 6;
+
 export function HomeScreen({
   search,
   onSearchChange,
@@ -61,10 +64,15 @@ export function HomeScreen({
         <AppText style={styles.cardTitle}>レベル別学習</AppText>
         {LEVEL_ORDER.map((level) => {
           const levelTerms = filteredTerms.filter((t) => t.level === level);
+          const previewTerms = levelTerms.slice(0, LEVEL_PREVIEW_COUNT);
+          const remainCount = Math.max(0, levelTerms.length - LEVEL_PREVIEW_COUNT);
           return (
             <View key={level} style={styles.levelRow}>
               <AppText style={[styles.levelBadge, { backgroundColor: levelColor(level) }]}>{level}</AppText>
-              <AppText style={styles.levelText}>{levelTerms.map((t) => t.term).join("、") || "-"}</AppText>
+              <AppText style={styles.levelText}>
+                {previewTerms.map((t) => t.term).join("、") || "-"}
+                {remainCount > 0 ? ` 他${remainCount}件` : ""}
+              </AppText>
             </View>
           );
         })}
@@ -72,7 +80,7 @@ export function HomeScreen({
 
       <View style={styles.panelCard}>
         <AppText style={styles.cardTitle}>単語学習</AppText>
-        {filteredTerms.map((term) => (
+        {filteredTerms.slice(0, TERM_PREVIEW_COUNT).map((term) => (
           <Pressable key={term.id} style={styles.termRow} onPress={() => onOpenTermDetail(term)}>
             <Ionicons
               name={term.icon as keyof typeof Ionicons.glyphMap}
@@ -87,6 +95,11 @@ export function HomeScreen({
             <AppText style={styles.arrow}>›</AppText>
           </Pressable>
         ))}
+        {filteredTerms.length > TERM_PREVIEW_COUNT ? (
+          <AppText style={styles.categoryListText}>
+            他{filteredTerms.length - TERM_PREVIEW_COUNT}件あります。検索で絞り込めます。
+          </AppText>
+        ) : null}
       </View>
     </>
   );
