@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~56.0.3",
+    "expo-speech": "~56.0.3",
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -16,7 +18,10 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --lan",
+    "start:lan": "expo start --lan",
+    "start:clear": "expo start --lan --clear",
+    "start:ios:lan": "expo start --lan --clear --port 8081",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"

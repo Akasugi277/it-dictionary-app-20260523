@@ -811,4 +811,312 @@
     renderAll();
   </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>やさしいIT日本語学習</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f7fb;
+      color: #222;
+    }
+
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #2563eb;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+      padding: 12px;
+      border-radius: 8px;
+      line-height: 1.7;
+    }
+
+    .progress-box {
+      margin-bottom: 15px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 18px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #2563eb;
+    }
+
+    .example {
+      background: #f9fafb;
+      border-left: 4px solid #60a5fa;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+
+    .word-image {
+      font-size: 60px;
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .quiz-question {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>やさしいIT日本語学習アプリ</h1>
+  <p>留学生(N2レベル)向け IT用語学習</p>
+</header>
+
+<div class="container">
+
+  <div class="grid">
+
+    <div class="card">
+      <h2>学習記録</h2>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>ネットワーク</span>
+          <span>70%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" style="width:70%"></div>
+        </div>
+      </div>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>データベース</span>
+          <span>50%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" style="width:50%"></div>
+        </div>
+      </div>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>セキュリティ</span>
+          <span>30%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" style="width:30%"></div>
+        </div>
+      </div>
+
+      <div class="progress-box">
+        <div class="progress-label">
+          <span>AI・クラウド</span>
+          <span>20%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" style="width:20%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tag">IT用語</div>
+      <h2>API</h2>
+
+      <div class="word-image">🔗</div>
+
+      <p><strong>やさしい説明：</strong><br>
+      ソフトやアプリどうしが、情報をやりとりするためのルールです。</p>
+
+      <div class="example">
+        <strong>具体例：</strong><br>
+        天気アプリが、天気の会社から情報をもらう時にAPIを使います。
+      </div>
+
+      <div class="example">
+        <strong>現場での会話：</strong><br>
+        「APIの接続を確認してください」
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tag">IT用語</div>
+      <h2>デバッグ</h2>
+
+      <div class="word-image">🐞</div>
+
+      <p><strong>やさしい説明：</strong><br>
+      プログラムのエラーやバグを見つけて直すことです。</p>
+
+      <div class="example">
+        <strong>具体例：</strong><br>
+        ログインできない問題を調べて、原因を直します。
+      </div>
+
+      <div class="example">
+        <strong>現場での会話：</strong><br>
+        「デバッグは終わりましたか？」
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h2>クイズ：自分の言葉で説明しよう</h2>
+
+    <div class="quiz-question">
+      「クラウド」を自分の言葉で説明してください。
+    </div>
+
+    <p>
+      ヒント：インターネット、データ、サービス
+    </p>
+
+    <textarea id="answer" placeholder="ここに説明を書いてください"></textarea>
+
+    <button onclick="checkAnswer()">AI添削する</button>
+
+    <div id="feedback" class="feedback" style="display:none;"></div>
+  </div>
+
+</div>
+
+<footer>
+  やさしいIT日本語学習アプリ © 2026
+</footer>
+
+<script>
+  function checkAnswer() {
+    const answer = document.getElementById('answer').value;
+    const feedback = document.getElementById('feedback');
+
+    let score = 0;
+    let comments = [];
+
+    const keywords = [
+      'インターネット',
+      'サービス',
+      'データ',
+      'サーバ',
+      'ネット',
+      '保存'
+    ];
+
+    keywords.forEach(word => {
+      if(answer.includes(word)) {
+        score++;
+      }
+    });
+
+    if(answer.length < 15) {
+      comments.push('説明が少し短いです。もう少しくわしく書いてみましょう。');
+    }
+
+    if(score >= 4) {
+      comments.push('◎ とても良い説明です！');
+      comments.push('クラウドが「インターネットを使うサービス」であることを説明できています。');
+    } else if(score >= 2) {
+      comments.push('○ 良い説明です。');
+      comments.push('「データを保存する」「インターネットを使う」などを書くと、もっと分かりやすくなります。');
+    } else {
+      comments.push('△ もう少しキーワードを入れてみましょう。');
+      comments.push('例：インターネットを使ってデータやサービスを利用する仕組み');
+    }
+
+    feedback.style.display = 'block';
+    feedback.innerHTML = comments.join('<br><br>');
+  }
+</script>
+
+</body>
 </html>
