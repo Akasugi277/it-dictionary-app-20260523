@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>やさしいIT日本語学習</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --ink: #1f2937;
+      --ink-soft: #6b7280;
+      --brand: #1f6feb;
+      --brand-soft: #dbeafe;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --shadow: 0 10px 26px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 10% 0%, #e8f1ff, #f4f7fb 45%);
+      color: var(--ink);
+    }
+
+    header {
+      background: linear-gradient(135deg, #1f6feb 0%, #0d4cc4 100%);
+      color: white;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.2vw, 2rem);
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: 0.95;
+    }
+
+    .container {
+      width: min(1200px, 95%);
+      margin: 22px auto 36px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .stats-grid,
+    .main-grid,
+    .quiz-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .main-grid {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: start;
+    }
+
+    .quiz-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0 0 12px;
+      color: #0e4db7;
+      font-size: 1.1rem;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--brand-soft);
+      color: #184fc0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .progress-row {
+      margin-bottom: 13px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.94rem;
+    }
+
+    .progress-track {
+      height: 16px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #1f6feb, #4496ff);
+      width: 0;
+      transition: width 0.35s ease;
+    }
+
+    .list-note {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+      color: #374151;
+      font-weight: 700;
+    }
+
+    select,
+    textarea,
+    input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 118px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      background: #1f6feb;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #124db3;
+    }
+
+    button.secondary {
+      background: #0f766e;
+    }
+
+    button.secondary:hover {
+      background: #0d625b;
+    }
+
+    button.ghost {
+      background: #475569;
+    }
+
+    button.ghost:hover {
+      background: #334155;
+    }
+
+    .term-title {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .term-image {
+      font-size: 52px;
+      margin: 8px 0;
+      text-align: center;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border-left: 4px solid #60a5fa;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+      line-height: 1.7;
+    }
+
+    .score-chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      margin-right: 6px;
+      margin-top: 8px;
+      font-size: 0.84rem;
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .score-good {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .score-mid {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .score-low {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+      padding: 12px;
+      border-radius: 9px;
+      line-height: 1.8;
+      display: none;
+    }
+
+    .map-chain {
+      font-size: 1rem;
+      line-height: 2;
+      background: #f8fafc;
+      border: 1px dashed #93c5fd;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .mission-list,
+    .weak-list {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      line-height: 1.7;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      margin-right: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #0f172a;
+      background: #e2e8f0;
+    }
+
+    .tag.level-beginner {
+      background: #dcfce7;
+    }
+
+    .tag.level-intermediate {
+      background: #fef3c7;
+    }
+
+    .tag.level-advanced {
+      background: #fee2e2;
+    }
+
+    footer {
+      text-align: center;
+      color: #6b7280;
+      padding-bottom: 26px;
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 920px) {
+      .main-grid,
+      .quiz-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>やさしいIT日本語学習アプリ</h1>
+    <p>留学生（N2相当）を含む初学者向け: ITと日本語を同時に学ぶ</p>
+  </header>
+
+  <main class="container">
+    <section class="stats-grid">
+      <article class="card">
+        <div class="stat-label">連続学習日数</div>
+        <div id="streakStat" class="stat-value">0日</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">累計学習時間</div>
+        <div id="studyTimeStat" class="stat-value">0分</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">全体正答率</div>
+        <div id="accuracyStat" class="stat-value">0%</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">今日の単語</div>
+        <div id="todayWordStat" class="stat-value">-</div>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <article class="card">
+        <h2>学習記録（分野別）</h2>
+        <p class="list-note">ストラテジ系・マネジメント系・テクノロジ系の理解度を記録します。</p>
+        <div id="domainProgress"></div>
+
+        <h3>苦手単語</h3>
+        <ul id="weakTerms" class="weak-list"></ul>
+      </article>
+
+      <article class="card">
+        <span class="badge">単語学習</span>
+
+        <div class="field">
+          <label for="termSelect">学習するIT用語</label>
+          <select id="termSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="langSelect">母語翻訳表示</label>
+          <select id="langSelect">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
+
+        <div id="termDetail"></div>
+
+        <div class="btn-row">
+          <button id="markLearnedBtn" class="secondary">理解できた（進捗に反映）</button>
+          <button id="speakBtn" class="ghost">発音読み上げ</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="quiz-grid">
+      <article class="card">
+        <h2>クイズ: 自分の言葉で説明しよう</h2>
+        <p id="quizPrompt" class="list-note"></p>
+
+        <div class="field">
+          <label for="quizAnswer">あなたの説明</label>
+          <textarea id="quizAnswer" placeholder="例: クラウドはインターネット上でデータを保存したりサービスを使うしくみです。"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button id="gradeBtn">AI添削する</button>
+          <button id="nextQuizBtn" class="ghost">次の問題へ</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+      </article>
+
+      <article class="card">
+        <h2>関連用語マップ</h2>
+        <p class="list-note">用語同士のつながりを見て理解を広げます。</p>
+        <div id="termMap" class="map-chain"></div>
+
+        <h3>今日の学習ミッション</h3>
+        <ul id="missionList" class="mission-list"></ul>
+      </article>
+    </section>
+  </main>
+
+  <footer>やさしいIT日本語学習アプリ © 2026</footer>
+
+  <script>
+    const STORAGE_KEY = "itjp_mvp_state_v1";
+
+    const DOMAIN_MAP = {
+      "ストラテジ系": ["企業活動", "法務", "経営戦略", "技術戦略", "ビジネスインダストリ", "システム概略", "システム企画"],
+      "マネジメント系": ["システム開発技術", "ソフトウェア開発管理技術", "プロジェクトマネジメント", "サービスマネジメント", "システム監査"],
+      "テクノロジ系": ["基礎理論", "アルゴリズムとプログラミング", "コンピュータ構成要素", "ソフトウェア", "ハードウェア", "情報デザイン", "情報メディア", "データベース", "ネットワーク", "セキュリティ"]
+    };
+
+    const TERMS = [
+      {
+        id: "variable",
+        term: "変数",
+        reading: "へんすう",
+        level: "初級",
+        domain: "テクノロジ系",
+        category: "アルゴリズムとプログラミング",
+        image: "📦",
+        easy: "データを一時的に入れておく箱です。",
+        example: "名前を入力したら、その名前を変数に保存します。",
+        workplace: "この値は変数に入れておいてください。",
+        translations: {
+          en: "A variable is a box for temporary data.",
+          zh: "变量是临时存放数据的盒子。"
+        },
+        keywords: ["箱", "データ", "保存", "値"]
+      },
+      {
+        id: "api",
+        term: "API",
+        reading: "エーピーアイ",
+        level: "中級",
+        domain: "テクノロジ系",
+        category: "ネットワーク",
+        image: "🔗",
+        easy: "アプリどうしで情報をやりとりするためのルールです。",
+        example: "天気アプリは天気会社のAPIから情報を受け取ります。",
+        workplace: "APIの接続テストは完了しましたか。",
+        translations: {
+          en: "API is a rule for apps to exchange data.",
+          zh: "API 是应用之间交换数据的规则。"
+        },
+        keywords: ["ルール", "情報", "アプリ", "やりとり"]
+      },
+      {
+        id: "database",
+        term: "データベース",
+        reading: "でーたべーす",
+        level: "中級",
+        domain: "テクノロジ系",
+        category: "データベース",
+        image: "🗄️",
+        easy: "データを整理して保存する場所です。",
+        example: "ユーザーの名前やメールをデータベースに保存します。",
+        workplace: "データベースのバックアップを確認します。",
+        translations: {
+          en: "A database stores data in an organized way.",
+          zh: "数据库用于有序地保存数据。"
+        },
+        keywords: ["保存", "整理", "データ", "検索"]
+      },
+      {
+        id: "normalization",
+        term: "正規化",
+        reading: "せいきか",
+        level: "上級",
+        domain: "テクノロジ系",
+        category: "データベース",
+        image: "🧩",
+        easy: "データの重複を減らして、管理しやすくする整理方法です。",
+        example: "同じ住所データを別テーブルに分けることで正規化します。",
+        workplace: "この設計は正規化しすぎていないか確認しましょう。",
+        translations: {
+          en: "Normalization reduces duplicated data structures.",
+          zh: "规范化用于减少重复数据并改善结构。"
+        },
+        keywords: ["重複", "整理", "テーブル", "データ"]
+      },
+      {
+        id: "polymorphism",
+        term: "ポリモーフィズム",
+        reading: "ぽりもーふぃずむ",
+        level: "上級",
+        domain: "テクノロジ系",
+        category: "ソフトウェア",
+        image: "🎭",
+        easy: "同じ名前の処理でも、型によって動きを変える考え方です。",
+        example: "draw()メソッドが図形ごとに違う動きをします。",
+        workplace: "この実装はポリモーフィズムで拡張しやすくできます。",
+        translations: {
+          en: "Polymorphism lets the same method act differently by type.",
+          zh: "多态让同一方法根据类型表现不同。"
+        },
+        keywords: ["同じ", "型", "動き", "メソッド"]
+      },
+      {
+        id: "login",
+        term: "ログイン",
+        reading: "ろぐいん",
+        level: "初級",
+        domain: "ストラテジ系",
+        category: "システム概略",
+        image: "🔐",
+        easy: "IDとパスワードを使って、サービスに入ることです。",
+        example: "会社のシステムにログインして勤怠を入力します。",
+        workplace: "ログインできない人がいるので調査してください。",
+        translations: {
+          en: "Login means entering a service with ID/password.",
+          zh: "登录是用账号密码进入系统。"
+        },
+        keywords: ["ID", "パスワード", "入る", "認証"]
+      }
+    ];
+
+    const TERM_RELATIONS = {
+      "Webサイト": ["サーバ", "データベース"],
+      "サーバ": ["データベース", "API"],
+      "API": ["データベース"],
+      "変数": ["データ", "プログラム"],
+      "ログイン": ["認証", "セキュリティ"]
+    };
+
+    const initialState = {
+      learnedTerms: {},
+      weakTerms: {},
+      attempts: 0,
+      correct: 0,
+      studyMinutes: 0,
+      streak: 0,
+      lastStudyDate: "",
+      dailyQuizDoneDate: ""
+    };
+
+    let appState = loadState();
+    let currentQuizTerm = null;
+
+    const termSelect = document.getElementById("termSelect");
+    const langSelect = document.getElementById("langSelect");
+    const termDetail = document.getElementById("termDetail");
+    const domainProgress = document.getElementById("domainProgress");
+    const weakTerms = document.getElementById("weakTerms");
+    const feedback = document.getElementById("feedback");
+    const quizPrompt = document.getElementById("quizPrompt");
+    const quizAnswer = document.getElementById("quizAnswer");
+    const termMap = document.getElementById("termMap");
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return { ...initialState };
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        return { ...initialState, ...parsed };
+      } catch (_) {
+        return { ...initialState };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    }
+
+    function todayString() {
+      const now = new Date();
+      return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+    }
+
+    function updateStreak() {
+      const today = todayString();
+      if (appState.lastStudyDate === today) {
+        return;
+      }
+
+      if (!appState.lastStudyDate) {
+        appState.streak = 1;
+      } else {
+        const prev = new Date(appState.lastStudyDate + "T00:00:00");
+        const curr = new Date(today + "T00:00:00");
+        const diffDays = Math.floor((curr - prev) / (1000 * 60 * 60 * 24));
+        appState.streak = diffDays === 1 ? appState.streak + 1 : 1;
+      }
+
+      appState.lastStudyDate = today;
+    }
+
+    function renderTermOptions() {
+      termSelect.innerHTML = TERMS.map(t => `<option value="${t.id}">${t.term}（${t.level} / ${t.category}）</option>`).join("");
+    }
+
+    function levelClass(level) {
+      if (level === "初級") return "level-beginner";
+      if (level === "中級") return "level-intermediate";
+      return "level-advanced";
+    }
+
+    function currentTerm() {
+      return TERMS.find(t => t.id === termSelect.value) || TERMS[0];
+    }
+
+    function renderTermDetail() {
+      const term = currentTerm();
+      const lang = langSelect.value;
+      const translated = lang === "ja" ? "" : (term.translations[lang] || "翻訳は準備中です。");
+      const learned = appState.learnedTerms[term.id] || 0;
+
+      termDetail.innerHTML = `
+        <div class="badge">${term.domain} / ${term.category}</div>
+        <h3 class="term-title">${term.term}（${term.reading}）</h3>
+        <span class="tag ${levelClass(term.level)}">${term.level}</span>
+        <div class="term-image">${term.image}</div>
+        <div class="info-box"><strong>やさしい説明:</strong><br>${term.easy}</div>
+        <div class="info-box"><strong>具体例:</strong><br>${term.example}</div>
+        <div class="info-box"><strong>現場での会話:</strong><br>${term.workplace}</div>
+        ${translated ? `<div class="info-box"><strong>翻訳:</strong><br>${translated}</div>` : ""}
+        <div class="list-note">この単語を理解した回数: ${learned}回</div>
+      `;
+
+      renderTermMap(term.term);
+      renderMissions();
+    }
+
+    function renderDomainProgress() {
+      const totalLearned = Object.values(appState.learnedTerms).reduce((acc, n) => acc + n, 0);
+      const techRate = Math.min(100, Math.round((totalLearned / 10) * 100));
+      const strategyRate = Math.min(100, Math.round((Object.values(appState.learnedTerms).length / 8) * 100));
+      const mgmtRate = Math.min(100, Math.round((appState.correct / Math.max(1, appState.attempts)) * 100));
+
+      const rows = [
+        { name: "ストラテジ系", value: strategyRate, note: `${DOMAIN_MAP["ストラテジ系"].length}カテゴリ` },
+        { name: "マネジメント系", value: mgmtRate, note: `${DOMAIN_MAP["マネジメント系"].length}カテゴリ` },
+        { name: "テクノロジ系", value: techRate, note: `${DOMAIN_MAP["テクノロジ系"].length}カテゴリ` }
+      ];
+
+      domainProgress.innerHTML = rows.map(row => `
+        <div class="progress-row">
+          <div class="progress-head">
+            <span>${row.name} <small>(${row.note})</small></span>
+            <strong>${row.value}%</strong>
+          </div>
+          <div class="progress-track"><div class="progress-bar" style="width:${row.value}%"></div></div>
+        </div>
+      `).join("");
+    }
+
+    function renderWeakTerms() {
+      const entries = Object.entries(appState.weakTerms)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      if (!entries.length) {
+        weakTerms.innerHTML = "<li>まだありません。クイズで苦手語を自動記録します。</li>";
+        return;
+      }
+
+      weakTerms.innerHTML = entries
+        .map(([id, count]) => {
+          const term = TERMS.find(t => t.id === id);
+          return `<li>${term ? term.term : id}（苦手回数: ${count}）</li>`;
+        })
+        .join("");
+    }
+
+    function renderStats() {
+      const accuracy = appState.attempts === 0 ? 0 : Math.round((appState.correct / appState.attempts) * 100);
+      const todayWord = TERMS[new Date().getDate() % TERMS.length].term;
+
+      document.getElementById("streakStat").textContent = `${appState.streak}日`;
+      document.getElementById("studyTimeStat").textContent = `${appState.studyMinutes}分`;
+      document.getElementById("accuracyStat").textContent = `${accuracy}%`;
+      document.getElementById("todayWordStat").textContent = todayWord;
+    }
+
+    function renderMissions() {
+      const today = todayString();
+      const missions = [
+        `今日の単語: ${TERMS[new Date().getDate() % TERMS.length].term}を説明する`,
+        `連続学習日数: ${appState.streak}日を維持する`,
+        appState.dailyQuizDoneDate === today ? "デイリークイズ: 完了" : "デイリークイズ: 1問解く"
+      ];
+
+      document.getElementById("missionList").innerHTML = missions.map(m => `<li>${m}</li>`).join("");
+    }
+
+    function renderTermMap(termLabel) {
+      const fallback = ["Webサイト", "サーバ", "データベース"];
+      let chain = [];
+
+      if (TERM_RELATIONS[termLabel]) {
+        chain = [termLabel, ...TERM_RELATIONS[termLabel]];
+      } else {
+        chain = fallback;
+      }
+
+      termMap.innerHTML = chain.join("<br>↓<br>");
+    }
+
+    function pickQuizTerm() {
+      currentQuizTerm = TERMS[Math.floor(Math.random() * TERMS.length)];
+      quizPrompt.textContent = `「${currentQuizTerm.term}」を自分の言葉で説明してください。ヒント: ${currentQuizTerm.keywords.join("、")}`;
+      quizAnswer.value = "";
+      feedback.style.display = "none";
+      feedback.innerHTML = "";
+    }
+
+    function gradeAnswer() {
+      const answer = quizAnswer.value.trim();
+      if (!answer) {
+        feedback.style.display = "block";
+        feedback.innerHTML = "回答を入力してください。";
+        return;
+      }
+
+      updateStreak();
+      appState.attempts += 1;
+      appState.studyMinutes += 3;
+      appState.dailyQuizDoneDate = todayString();
+
+      const keywords = currentQuizTerm.keywords;
+      const hitCount = keywords.reduce((count, k) => count + (answer.includes(k) ? 1 : 0), 0);
+      const accuracyScore = Math.min(5, hitCount + (answer.includes(currentQuizTerm.term) ? 1 : 0));
+      const clarityScore = answer.length >= 35 ? 4 : answer.length >= 20 ? 3 : 2;
+      const concreteScore = /例えば|たとえば|例|実際|とき/.test(answer) ? 4 : 2;
+      const total = accuracyScore + clarityScore + concreteScore;
+
+      if (total >= 10) {
+        appState.correct += 1;
+      } else {
+        appState.weakTerms[currentQuizTerm.id] = (appState.weakTerms[currentQuizTerm.id] || 0) + 1;
+      }
+
+      saveState();
+
+      const scoreTone = total >= 12 ? "score-good" : (total >= 9 ? "score-mid" : "score-low");
+      const levelComment = total >= 12
+        ? "とてもよい説明です。意味が正確で、読み手にも伝わります。"
+        : total >= 9
+          ? "おおむね良い説明です。もう少し具体例を足すとさらに伝わりやすくなります。"
+          : "基本の意味は近いですが、キーワードと具体例を足すと理解しやすくなります。";
+
+      feedback.style.display = "block";
+      feedback.innerHTML = `
+        <span class="score-chip ${scoreTone}">総合: ${total}/15</span>
+        <span class="score-chip">正確さ: ${accuracyScore}/5</span>
+        <span class="score-chip">わかりやすさ: ${clarityScore}/5</span>
+        <span class="score-chip">具体性: ${concreteScore}/5</span>
+        <div style="margin-top:10px;"><strong>AI添削:</strong><br>${levelComment}</div>
+      `;
+
+      renderAll();
+    }
+
+    function markLearned() {
+      const term = currentTerm();
+      updateStreak();
+      appState.learnedTerms[term.id] = (appState.learnedTerms[term.id] || 0) + 1;
+      appState.studyMinutes += 5;
+      saveState();
+      renderAll();
+    }
+
+    function speakTerm() {
+      const term = currentTerm();
+      if (!window.speechSynthesis) {
+        alert("このブラウザでは読み上げ機能が使えません。");
+        return;
+      }
+
+      const utter = new SpeechSynthesisUtterance(`${term.term}。${term.easy}`);
+      utter.lang = "ja-JP";
+      utter.rate = 0.95;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+
+    function renderAll() {
+      renderStats();
+      renderDomainProgress();
+      renderWeakTerms();
+      renderTermDetail();
+      renderMissions();
+    }
+
+    document.getElementById("gradeBtn").addEventListener("click", gradeAnswer);
+    document.getElementById("nextQuizBtn").addEventListener("click", pickQuizTerm);
+    document.getElementById("markLearnedBtn").addEventListener("click", markLearned);
+    document.getElementById("speakBtn").addEventListener("click", speakTerm);
+    termSelect.addEventListener("change", renderTermDetail);
+    langSelect.addEventListener("change", renderTermDetail);
+
+    renderTermOptions();
+    termSelect.value = TERMS[0].id;
+    updateStreak();
+    saveState();
+    pickQuizTerm();
+    renderAll();
+  </script>
+</body>
+</html>
