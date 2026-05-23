@@ -1,6 +1,12 @@
 import { AppState, Domain, Level, Term } from "./types";
 
-export const APP_STATE_KEY = "it_supporter_state_v3";
+export const APP_STATE_VERSION = 4;
+export const APP_STATE_KEY = "it_supporter_state_v4";
+export const LEGACY_APP_STATE_KEYS = ["it_supporter_state_v3"] as const;
+export const APP_STATE_META_KEY = "it_supporter_state_v4_meta";
+export const APP_STATE_PROGRESS_KEY = "it_supporter_state_v4_progress";
+export const APP_STATE_PER_TERM_KEY = "it_supporter_state_v4_per_term";
+export const APP_STATE_HISTORY_KEY = "it_supporter_state_v4_history";
 
 export const DOMAIN_TREE: Record<Domain, string[]> = {
   ストラテジ系: [
@@ -651,6 +657,7 @@ export const TERMS: Term[] = [
 export const LEVEL_ORDER: Level[] = ["初級", "中級", "上級"];
 
 export const initialState: AppState = {
+  stateVersion: APP_STATE_VERSION,
   learnedCount: {},
   weakTerms: {},
   favorites: {},

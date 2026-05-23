@@ -23,6 +23,7 @@ export type Term = {
 };
 
 export type AppState = {
+  stateVersion: number;
   learnedCount: Record<string, number>;
   weakTerms: Record<string, number>;
   favorites: Record<string, boolean>;

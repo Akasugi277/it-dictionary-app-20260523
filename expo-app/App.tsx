@@ -5,7 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 import { SafeAreaView, ScrollView, View, useWindowDimensions } from "react-native";
 import { BottomNav } from "./src/components/BottomNav";
 import { Header } from "./src/components/Header";
-import { APP_STATE_KEY, TERMS, initialState } from "./src/data";
+import {
+  APP_STATE_HISTORY_KEY,
+  APP_STATE_KEY,
+  APP_STATE_META_KEY,
+  APP_STATE_PER_TERM_KEY,
+  APP_STATE_PROGRESS_KEY,
+  APP_STATE_VERSION,
+  LEGACY_APP_STATE_KEYS,
+  TERMS,
+  initialState,
+} from "./src/data";
 import { FontScaleProvider } from "./src/fontScale";
 import { CategoryScreen } from "./src/screens/CategoryScreen";
 import { DetailScreen } from "./src/screens/DetailScreen";
@@ -16,6 +26,161 @@ import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { styles } from "./src/styles";
 import { AppState, Domain, TabKey, Term, WeakTermRow } from "./src/types";
 import { clamp, todayKey } from "./src/utils";
+
+const TERM_ID_SET = new Set(TERMS.map((term) => term.id));
+const APP_STATE_SPLIT_KEYS = [
+  APP_STATE_META_KEY,
+  APP_STATE_PROGRESS_KEY,
+  APP_STATE_PER_TERM_KEY,
+  APP_STATE_HISTORY_KEY,
+] as const;
+
+type SplitMetaState = Pick<AppState, "stateVersion" | "lang" | "fontScale">;
+type SplitProgressState = Pick<AppState, "attempts" | "correct" | "studyMinutes" | "streak">;
+type SplitPerTermState = Pick<AppState, "learnedCount" | "weakTerms" | "favorites">;
+type SplitHistoryState = Pick<AppState, "history" | "lastStudyDate" | "dailyQuizDoneDate">;
+
+function toSafeNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function toSafeString(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function toSafeStringArray(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function toSafeTermNumberRecord(value: unknown) {
+  if (!value || typeof value !== "object") return {} as Record<string, number>;
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([id, count]) => TERM_ID_SET.has(id) && typeof count === "number" && count > 0)
+      .map(([id, count]) => [id, count])
+  ) as Record<string, number>;
+}
+
+function toSafeTermBooleanRecord(value: unknown) {
+  if (!value || typeof value !== "object") return {} as Record<string, boolean>;
+  return Object.fromEntries(
+    Object.entries(value).filter(([id, enabled]) => TERM_ID_SET.has(id) && Boolean(enabled))
+  ) as Record<string, boolean>;
+}
+
+function normalizeState(raw: unknown): AppState {
+  if (!raw || typeof raw !== "object") return initialState;
+  const candidate = raw as Partial<AppState>;
+
+  return {
+    stateVersion: APP_STATE_VERSION,
+    learnedCount: toSafeTermNumberRecord(candidate.learnedCount),
+    weakTerms: toSafeTermNumberRecord(candidate.weakTerms),
+    favorites: toSafeTermBooleanRecord(candidate.favorites),
+    history: toSafeStringArray(candidate.history).filter((id) => TERM_ID_SET.has(id)).slice(0, 25),
+    attempts: Math.max(0, toSafeNumber(candidate.attempts)),
+    correct: Math.max(0, toSafeNumber(candidate.correct)),
+    studyMinutes: Math.max(0, toSafeNumber(candidate.studyMinutes)),
+    streak: Math.max(0, toSafeNumber(candidate.streak)),
+    lastStudyDate: toSafeString(candidate.lastStudyDate),
+    dailyQuizDoneDate: toSafeString(candidate.dailyQuizDoneDate),
+    lang: candidate.lang === "en" || candidate.lang === "zh" ? candidate.lang : "ja",
+    fontScale: Math.max(0.8, Math.min(1.4, toSafeNumber(candidate.fontScale, 1))),
+  };
+}
+
+function buildSplitPayload(state: AppState) {
+  const meta: SplitMetaState = {
+    stateVersion: APP_STATE_VERSION,
+    lang: state.lang,
+    fontScale: state.fontScale,
+  };
+  const progress: SplitProgressState = {
+    attempts: state.attempts,
+    correct: state.correct,
+    studyMinutes: state.studyMinutes,
+    streak: state.streak,
+  };
+  const perTerm: SplitPerTermState = {
+    learnedCount: state.learnedCount,
+    weakTerms: state.weakTerms,
+    favorites: state.favorites,
+  };
+  const history: SplitHistoryState = {
+    history: state.history,
+    lastStudyDate: state.lastStudyDate,
+    dailyQuizDoneDate: state.dailyQuizDoneDate,
+  };
+
+  return { meta, progress, perTerm, history };
+}
+
+function parseJsonSafe(raw: string | null) {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+async function loadPersistedState() {
+  const splitEntries = await AsyncStorage.multiGet([...APP_STATE_SPLIT_KEYS]);
+  const splitMap = new Map(splitEntries);
+  const metaRaw = splitMap.get(APP_STATE_META_KEY) ?? null;
+  const progressRaw = splitMap.get(APP_STATE_PROGRESS_KEY) ?? null;
+  const perTermRaw = splitMap.get(APP_STATE_PER_TERM_KEY) ?? null;
+  const historyRaw = splitMap.get(APP_STATE_HISTORY_KEY) ?? null;
+
+  if (metaRaw || progressRaw || perTermRaw || historyRaw) {
+    return {
+      source: "split" as const,
+      state: normalizeState({
+        ...(parseJsonSafe(metaRaw) ?? {}),
+        ...(parseJsonSafe(progressRaw) ?? {}),
+        ...(parseJsonSafe(perTermRaw) ?? {}),
+        ...(parseJsonSafe(historyRaw) ?? {}),
+      }),
+    };
+  }
+
+  const currentRaw = await AsyncStorage.getItem(APP_STATE_KEY);
+  if (currentRaw) {
+    return {
+      source: "single" as const,
+      key: APP_STATE_KEY,
+      state: normalizeState(parseJsonSafe(currentRaw)),
+    };
+  }
+
+  for (const legacyKey of LEGACY_APP_STATE_KEYS) {
+    const legacyRaw = await AsyncStorage.getItem(legacyKey);
+    if (legacyRaw) {
+      return {
+        source: "single" as const,
+        key: legacyKey,
+        state: normalizeState(parseJsonSafe(legacyRaw)),
+      };
+    }
+  }
+
+  return null;
+}
+
+async function persistStateAsSplit(state: AppState) {
+  const payload = buildSplitPayload(state);
+  await AsyncStorage.multiSet([
+    [APP_STATE_META_KEY, JSON.stringify(payload.meta)],
+    [APP_STATE_PROGRESS_KEY, JSON.stringify(payload.progress)],
+    [APP_STATE_PER_TERM_KEY, JSON.stringify(payload.perTerm)],
+    [APP_STATE_HISTORY_KEY, JSON.stringify(payload.history)],
+  ]);
+}
+
+function persistSplitKey(key: string, value: unknown) {
+  return AsyncStorage.setItem(key, JSON.stringify(value));
+}
 
 export default function App() {
   const { width } = useWindowDimensions();
@@ -30,24 +195,88 @@ export default function App() {
   const [quizFeedback, setQuizFeedback] = useState("");
   const [quizScore, setQuizScore] = useState<number | null>(null);
   const [quizTermId, setQuizTermId] = useState<string>(TERMS[1].id);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const metaState = useMemo<SplitMetaState>(
+    () => ({
+      stateVersion: APP_STATE_VERSION,
+      lang: state.lang,
+      fontScale: state.fontScale,
+    }),
+    [state.lang, state.fontScale]
+  );
+
+  const progressState = useMemo<SplitProgressState>(
+    () => ({
+      attempts: state.attempts,
+      correct: state.correct,
+      studyMinutes: state.studyMinutes,
+      streak: state.streak,
+    }),
+    [state.attempts, state.correct, state.studyMinutes, state.streak]
+  );
+
+  const perTermState = useMemo<SplitPerTermState>(
+    () => ({
+      learnedCount: state.learnedCount,
+      weakTerms: state.weakTerms,
+      favorites: state.favorites,
+    }),
+    [state.learnedCount, state.weakTerms, state.favorites]
+  );
+
+  const historyState = useMemo<SplitHistoryState>(
+    () => ({
+      history: state.history,
+      lastStudyDate: state.lastStudyDate,
+      dailyQuizDoneDate: state.dailyQuizDoneDate,
+    }),
+    [state.history, state.lastStudyDate, state.dailyQuizDoneDate]
+  );
 
   useEffect(() => {
     const load = async () => {
       try {
-        const raw = await AsyncStorage.getItem(APP_STATE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw) as Partial<AppState>;
-        setState({ ...initialState, ...parsed });
+        const persisted = await loadPersistedState();
+        if (persisted) {
+          const normalized = persisted.state;
+          setState(normalized);
+
+          // Phase B: persist as split keys and remove old single-key storage.
+          await persistStateAsSplit(normalized);
+          if (persisted.source === "single") {
+            await AsyncStorage.removeItem(persisted.key);
+          }
+        }
+        await AsyncStorage.multiRemove([APP_STATE_KEY, ...LEGACY_APP_STATE_KEYS]);
       } catch {
         setState(initialState);
+      } finally {
+        setIsHydrated(true);
       }
     };
     load();
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem(APP_STATE_KEY, JSON.stringify(state)).catch(() => undefined);
-  }, [state]);
+    if (!isHydrated) return;
+    persistSplitKey(APP_STATE_META_KEY, metaState).catch(() => undefined);
+  }, [isHydrated, metaState]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    persistSplitKey(APP_STATE_PROGRESS_KEY, progressState).catch(() => undefined);
+  }, [isHydrated, progressState]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    persistSplitKey(APP_STATE_PER_TERM_KEY, perTermState).catch(() => undefined);
+  }, [isHydrated, perTermState]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    persistSplitKey(APP_STATE_HISTORY_KEY, historyState).catch(() => undefined);
+  }, [isHydrated, historyState]);
 
   const selectedTerm = useMemo(
     () => TERMS.find((t) => t.id === selectedTermId) ?? TERMS[0],
